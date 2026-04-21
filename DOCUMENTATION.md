@@ -1,9 +1,9 @@
-# Claude Trader v3 — Full System Documentation
+# Agent Trader v3 — Full System Documentation
 
 ## Overview
 
-Claude Trader v3 is an autonomous AI trading system where Claude is the brain.
-Unlike traditional bots that use fixed coded strategies, Claude reads live TradingView
+Agent Trader v3 is an autonomous AI trading system where Agent is the brain.
+Unlike traditional bots that use fixed coded strategies, Agent reads live TradingView
 charts, interprets price action and indicators, makes trading decisions, and continuously
 learns from every trade it makes.
 
@@ -13,11 +13,11 @@ The goal is a self-improving trading agent that gets better with every session.
 
 ## Core Philosophy
 
-- **Claude is the trader** — not a rule executor. He reads charts like a human would.
+- **Agent is the trader** — not a rule executor. He reads charts like a human would.
 - **Learning compounds** — every trade teaches something. Knowledge is never lost between sessions.
 - **Risk first** — 1% portfolio risk per trade, always. Profits are variable. Losses are controlled.
-- **No restrictions on coins** — Claude picks what to trade based on what the market offers.
-- **Full autonomy** — no human confirmation needed. Claude executes, notifies, learns.
+- **No restrictions on coins** — Agent picks what to trade based on what the market offers.
+- **Full autonomy** — no human confirmation needed. Agent executes, notifies, learns.
 
 ---
 
@@ -32,7 +32,7 @@ The goal is a self-improving trading agent that gets better with every session.
                         │ loaded at session start
                         ▼
 ┌─────────────────────────────────────────────────────┐
-│                    CLAUDE (brain)                    │
+│                    Agent (brain)                    │
 │                                                      │
 │  1. Reads charts via TradingView MCP                 │
 │  2. Draws on charts (S/R, trend lines, fib levels)   │
@@ -68,7 +68,7 @@ The goal is a self-improving trading agent that gets better with every session.
 
 ## The Trading Loop
 
-### Every Cycle (self-paced by Claude)
+### Every Cycle (self-paced by Agent)
 
 ```
 1. LOAD
@@ -154,7 +154,7 @@ margin       = notional / leverage           → capital used
 If total portfolio drops more than 10% in a 24h window:
 1. All new trading stops immediately
 2. Existing positions are NOT closed (let them play out)
-3. Claude writes an analysis: what went wrong, what to do differently
+3. Agent writes an analysis: what went wrong, what to do differently
 4. Trading resumes the next calendar day
 5. Telegram notification sent
 
@@ -166,7 +166,7 @@ Every closed trade generates:
 - **Markdown file**: `data/journal/YYYY-MM-DD_HHMM_SYMBOL_SIDE_OUTCOME.md`
 - **Screenshot**: `data/screenshots/SYMBOL_SIDE_ENTRY.png`
 
-The screenshot is taken AFTER Claude draws on the chart:
+The screenshot is taken AFTER Agent draws on the chart:
 - Trend lines connecting key highs/lows
 - Support/resistance rectangles
 - Fibonacci levels as horizontal lines (0.236, 0.382, 0.5, 0.618, 0.786)
@@ -179,13 +179,17 @@ The screenshot is taken AFTER Claude draws on the chart:
 
 ## Knowledge Base Files
 
-| File | Purpose | Updated by |
-|---|---|---|
-| `knowledge/fundamentals.md` | TA fundamentals, patterns, indicators | Pre-seeded (us) + Claude adds |
-| `knowledge/strategies.md` | Trading setups Claude uses | Claude builds and refines |
-| `knowledge/lessons.md` | Specific lessons from real trades | Claude after each closed trade |
-| `knowledge/symbols.md` | How each coin behaves | Claude as it learns each coin |
-| `knowledge/performance.md` | Stats, win rates, best conditions | Claude updates daily |
+| File | Purpose                               | Updated by                    |
+|---|---------------------------------------|-------------------------------|
+| `knowledge/fundamentals.md` | TA fundamentals, patterns, indicators | Pre-seeded (us) + Agent adds  |
+| `knowledge/strategies.md` | Trading setups Agent uses             | Agent builds and refines      |
+| `knowledge/lessons.md` | Specific lessons from real trades     | Agent after each closed trade |
+| `knowledge/symbols.md` | How each coin behaves                 | Agent as it learns each coin |
+| `knowledge/performance.md` | Stats, win rates, best conditions     | Agent updates daily          |
+| `knowledge/checklists.md` | Pass/fail operating checklists        | Agent updates when process rules harden |
+| `knowledge/regimes.md` | Consistent market-regime definitions   | Agent refines from live trading |
+| `knowledge/exchange_quirks.md` | Exchange/platform operating rules | Agent updates after platform issues |
+| `knowledge/mistakes.md` | Repeatable decision errors + counters | Agent updates when mistakes recur |
 
 ---
 
@@ -203,13 +207,13 @@ The screenshot is taken AFTER Claude draws on the chart:
 
 ## Backtesting / Practice Mode
 
-Claude can replay historical charts on TradingView to practice reading setups
+Agent can replay historical charts on TradingView to practice reading setups
 without placing real orders. This is used to:
 - Learn a new coin's behavior
 - Test a new strategy idea before using real demo money
 - Rebuild confidence after a losing streak
 
-To activate: Claude sets `practice_mode = true` for a cycle and logs observations
+To activate: Agent sets `practice_mode = true` for a cycle and logs observations
 to `knowledge/strategies.md` instead of placing trades.
 
 ---
@@ -233,7 +237,7 @@ to `knowledge/strategies.md` instead of placing trades.
       "Where exactly do I enter with the tightest SL?"
 ```
 
-Claude always works top-down. Never enter on 5m without checking 1H and 4H first.
+Agent always works top-down. Never enter on 5m without checking 1H and 4H first.
 
 ---
 
@@ -284,41 +288,59 @@ LOG_DIR=data
 
 ```
 claude-trader-v3/
-├── DOCUMENTATION.md          ← this file
-├── CLAUDE.md                 ← Claude's identity, mission, workflow
+├── AGENTS.md                  ← Agent identity, mission, workflow, and operating rules
+├── CLAUDE.md                  ← parallel instruction file used in earlier sessions
+├── DOCUMENTATION.md           ← this file
+├── config.py                  ← env-backed configuration
+├── main.py                    ← setup / connectivity check entry point
+├── requirements.txt
+├── .env / .env.example
+├── .mcp.json                  ← project MCP config
 ├── knowledge/
-│   ├── fundamentals.md       ← pre-seeded trading knowledge
-│   ├── strategies.md         ← Claude's strategy library
-│   ├── lessons.md            ← lessons from real trades
-│   ├── symbols.md            ← per-coin behavior notes
-│   └── performance.md        ← stats and patterns
+│   ├── fundamentals.md
+│   ├── strategies.md
+│   ├── lessons.md
+│   ├── symbols.md
+│   ├── performance.md
+│   ├── checklists.md
+│   ├── regimes.md
+│   ├── exchange_quirks.md
+│   └── mistakes.md
 ├── services/
-│   ├── claude_trader.py      ← main Claude decision loop
-│   ├── chart_analyst.py      ← TradingView MCP interactions
-│   ├── position_monitor.py   ← monitors BitGet positions
-│   ├── daily_reviewer.py     ← 24h learning cycle
-│   └── notifier.py           ← Telegram
+│   ├── trading_service.py
+│   ├── portfolio_service.py
+│   ├── position_monitor.py
+│   └── notification_service.py
 ├── exchanges/
-│   └── exchange_factory.py   ← ccxt, exchange-agnostic
+│   └── exchange_factory.py
 ├── models/
 │   ├── trade.py
 │   └── position.py
 ├── repositories/
 │   ├── position_repository.py
-│   ├── trade_repository.py
-│   └── journal_repository.py
+│   └── trade_repository.py
 ├── utils/
 │   ├── circuit_breaker.py
-│   ├── knowledge_manager.py  ← reads/writes knowledge files
-│   └── logger.py
-├── data/
-│   ├── positions.json
-│   ├── trades_*.csv
-│   ├── journal/
-│   └── screenshots/
-├── config.py
-├── main.py
-└── .env
+│   └── knowledge_manager.py
+├── scripts/
+│   ├── positions.py
+│   ├── place_order.py
+│   ├── close_position.py
+│   ├── fix_sl_tp.py
+│   ├── journal.py
+│   ├── portfolio.py
+│   ├── telegram.py
+│   ├── notify_trade.py
+│   ├── notify_eth.py
+│   ├── save_position.py
+│   └── cb_status.py
+└── data/
+    ├── cycle_log.md
+    ├── session_state.md
+    ├── positions.json
+    ├── circuit_breaker.json
+    └── journal/
+        └── trades.csv
 ```
 
 ---
@@ -327,9 +349,10 @@ claude-trader-v3/
 
 ### Prerequisites
 - Python 3.11+
-- Claude CLI installed (`npm install -g @anthropic-ai/claude-code`)
-- TradingView Desktop open with MCP configured
-- Chrome with CDP on port 9222 (for TradingView MCP)
+- Agent CLI installed (`npm install -g @anthropic-ai/Agent-code`)
+- Google Chrome available on this machine
+- TradingView opened in Chrome with CDP on port `9222`
+- Codex / Claude configured with the TradingView MCP server
 
 ### First Run
 ```bash
@@ -340,32 +363,75 @@ cd E:\Projects\claude-trader-v3
 pip install -r requirements.txt
 
 # 3. Copy and fill .env
-cp .env.example .env
+copy .env.example .env
 
-# 4. Run
+# 4. Run setup / connectivity check
 python main.py
 ```
 
-### What Happens on First Run
-1. Claude reads all knowledge files
-2. Claude opens TradingView and scans for best 5 coins
-3. Claude performs multi-timeframe analysis on each
-4. If confident setups found → places trades on BitGet demo
-5. Telegram notification sent for each trade
-6. Claude self-paces the next cycle based on market conditions
+### TradingView Setup On This Machine
+
+This project does **not** use TradingView Desktop on this machine.
+The working path is Chrome CDP.
+
+Launch Chrome like this:
+
+```powershell
+Start-Process 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe' -ArgumentList '--remote-debugging-port=9222 --user-data-dir=C:\Users\popes\AppData\Local\Google\Chrome\CDP https://www.tradingview.com/chart/'
+```
+
+Then verify the MCP connection with:
+
+```text
+tv_health_check
+```
+
+Success criteria:
+
+- `success: true`
+- `cdp_connected: true`
+- `api_available: true`
+
+### What `main.py` Actually Does
+
+`main.py` is a setup and connectivity check, not the autonomous trading loop itself.
+
+When you run `python main.py`, it:
+
+1. Loads config
+2. Checks circuit-breaker state
+3. Connects to BitGet through ccxt
+4. Prints balance and live open positions
+5. Verifies the core knowledge files exist
+6. Optionally sends a Telegram test message with `--test`
+
+The actual trading cycle is driven by the agent workflow in `AGENTS.md` together with TradingView MCP and the helper scripts/services in this repo.
 
 ---
 
 ## Roadmap
 
+### Done
+
 - [x] Architecture design
 - [x] Documentation
-- [x] Knowledge base (pre-seeded)
-- [ ] Core services implementation
-- [ ] TradingView chart drawing + screenshot
-- [ ] BitGet order execution
-- [ ] Telegram notifications
-- [ ] Circuit breaker
-- [ ] Daily learning review
-- [ ] Backtesting practice mode
+- [x] Knowledge base (pre-seeded and extended with operating files)
+- [x] Core services implementation
+- [x] BitGet order execution
+- [x] Telegram notifications
+- [x] Circuit breaker
+
+### Partial
+
+- [~] TradingView chart drawing + screenshot
+  TradingView MCP is connected and usable, but this is driven through the agent workflow rather than a dedicated Python chart service in the repo.
+
+- [~] Daily learning review
+  The process exists in `AGENTS.md` and the knowledge files are actively updated, but there is no dedicated automated `daily_reviewer.py` implementation.
+
+- [~] Backtesting practice mode
+  The operating concept exists and TradingView replay can support it, but there is no dedicated repo implementation that orchestrates it end to end.
+
+### Not Done
+
 - [ ] Deploy to VPS (after local testing)
