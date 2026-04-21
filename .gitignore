@@ -1,0 +1,16 @@
+.env
+.mcp.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+data/journal/
+data/screenshots/
+*.log
+.DS_Store
+Thumbs.db
